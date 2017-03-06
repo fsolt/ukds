@@ -36,6 +36,8 @@
 #' @importFrom stringr str_detect str_replace
 #' @importFrom haven read_por
 #' @importFrom foreign read.spss
+#' @importFrom dplyr last
+#' @importFrom rio convert
 #' 
 #' @export
 ukds_download <- function(file_id, 
@@ -141,21 +143,22 @@ ukds_download <- function(file_id,
             dd_new <- list.files(download_dir)[!list.files(download_dir) %in% dd_old]
         }
         
-        # create item directory and move file
-        if (!dir.exists(file.path(download_dir, item))) dir.create(file.path(download_dir, item))
-        file.rename(file.path(download_dir, dd_new), file.path(download_dir, item, dd_new))
+        # unzip and convert to .RData
+        unzip(file.path(download_dir, dd_new), exdir = download_dir)
+        unlink(file.path(download_dir, dd_new))
+        dd_new <- list.files(download_dir)[!list.files(download_dir) %in% dd_old]
         
-        # convert to .RData
+        data_file <- list.files(path = file.path(download_dir, dd_new), recursive = TRUE) %>%
+            str_subset("\\.dta") %>%
+            dplyr::last()
         if (convert == TRUE) {
-            x <- tryCatch(haven::read_por(file.path(download_dir, item, dd_new)),
-                          error = function(e) {
-                              foreign::read.spss(file.path(download_dir, item, dd_new),
-                                                 to.data.frame = TRUE,
-                                                 use.value.labels = FALSE)
-                          })
-            save(x, file = stringr::str_replace(file.path(download_dir, item, dd_new), ".por", ".RData"))
+            rio::convert(file.path(download_dir, dd_new, data_file),
+                         paste0(tools::file_path_sans_ext(file.path(download_dir,
+                                                                    dd_new,
+                                                                    basename(data_file))), ".RData"))
         }
         
+        file.rename(file.path(download_dir, dd_new), file.path(download_dir, item))
 
     }
     
