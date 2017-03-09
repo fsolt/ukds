@@ -79,29 +79,18 @@ ukds_download <- function(file_id,
         use <- getOption("ukds_use")
     }
     
-    # initialize driver
-    if(msg) message("Initializing RSelenium driver")
-    fprof <- makeFirefoxProfile(list(
-        browser.download.dir = file.path(getwd(), download_dir),
-        browser.download.folderList = 2L,
-        browser.download.manager.showWhenStarting = FALSE,
-        pdfjs.disabled=TRUE,
-        plugin.scan.plid.all = FALSE,
-        plugin.scan.Acrobat = "99.0",
-        browser.helperApps.neverAsk.saveToDisk = "application/x-zip-compressed"))
-    rD <- rsDriver(browser = "firefox", extraCapabilities = fprof, verbose = TRUE)
-    remDr <- rD[["client"]]
     
-    # sign in
     signin <- "https://qa.esds.ac.uk/secure/UKDSRegister_start.asp"
-
-    s <- html_session(signin)
-    org_link <- html_nodes(s, "option") %>% 
+    handle_reset(signin)
+    
+    # enter org
+    p0 <- html_session(signin)
+    org_link <- html_nodes(p0, "option") %>% 
         .[str_detect(., org)] %>% 
         str_match('(?<=\\")[^"]*') %>%
         as.character()
 
-    form <- html_form(s)[[1]] %>% 
+    f0 <- html_form(p0)[[1]] %>%
         set_values(origin = org_link)
     fake_submit_button <- list(name = "submit-btn",
                                type = "submit",
@@ -111,14 +100,71 @@ ukds_download <- function(file_id,
                                readonly = NULL,
                                required = FALSE)
     attr(fake_submit_button, "class") <- "btn-enabled"
-    form[["fields"]][[7]] <- fake_submit_button
-    s1 <- submit_form(s, form)
+    f0[["fields"]][["submit"]] <- fake_submit_button
     
-    form1 <- html_form(s1)[[1]] %>% 
-        set_values(j_username = user,
-                   j_password = password)
+    c0 <- cookies(p0)$value
+    names(c0) <- cookies(p0)$name
+    p1 <- submit_form(session = p0, form = f0, config = set_cookies(.cookies = c0))
+
+    # enter user and password
+    f1 <- html_form(p1)[[1]] %>%
+        set_values("j_username" = user,
+                   "j_password" = password)
+    c1 <- cookies(p1)$value[c(1:3)]
+    names(c1) <- cookies(p1)$name[c(1:3)]
+    p2 <- submit_form(session = p1, form = f1, config = set_cookies(.cookies = c1))
+
+    # click through
+    f2 <- p2 %>%
+        html_form() %>%
+        first()
+    c2 <- cookies(p2)$value
+    names(c2) <- cookies(p2)$name
     
-    s2 <- submit_form(s1, form1)
+    p3 <- submit_form(p2, f2, config = set_cookies(.cookies = c2))
+    
+    # get login cookies
+    login_cookies = cookies(p3)$value
+    names(login_cookies)=cookies(p3)$name
+    
+    
+    login_ukds = function(user, password) {
+        require(httr)
+        require(rvest)
+        
+        set_config( config( ssl_verifypeer = 0L ) )
+        
+        #important - httr preserves cookies on subsequent requests to the same host, we don't need that because of sessions expiration
+        handle_reset("https://usa.ipums.org/")
+        
+        #set login and password
+        login1 = GET( "https://usa.ipums.org/usa-action/users/login" )
+        form_auth = list( "j_username" = user , "j_password" = password )
+        
+        l1_cookies=login1$cookies$value
+        names(l1_cookies)=login1$cookies$name
+        
+        #receive auth tokens as html hidden fields in a form
+        login2 = POST(login1$url, body = form_auth, set_cookies(.cookies=l1_cookies), encode="form")
+        login2_form = read_html(login2$content) %>% html_form() 
+        
+        l2_cookies=login2$cookies$value
+        names(l2_cookies)=login2$cookies$name
+        
+        #submit the form back (browser submits it back automatically with JS)
+        login3 = POST(login2_form[[1]]$url, body=list(RelayState=login2_form[[1]]$fields$RelayState$value, 
+                                                      SAMLResponse=login2_form[[1]]$fields$SAMLResponse$value), 
+                      set_cookies(.cookies=l2_cookies), 
+                      encode="form")
+        
+        #now we have what we came for - _shibsession_* and JSESSION id cookie
+        login_cookies = login3$cookies$value
+        names(login_cookies)=login3$cookies$name
+        
+        return=login_cookies
+    }
+    
+    
     
     # loop through files
     for (i in seq(file_id)) { 
@@ -132,16 +178,14 @@ ukds_download <- function(file_id,
         # navigate to download page
         #url <- paste0("https://discover.ukdataservice.ac.uk/catalogue/?sn=", item, "&type=Data%20catalogue")
         url <- paste0("http://www.esds.ac.uk/newRegistration/addProjectDataset.asp?snAdd=", item)
-
-        s <- html_session(url)
+        url2 <- paste0("https://qa.esds.ac.uk/newregistration/UKDSaddProjectDataset.asp?snAdd=", item)
         
-        data_page <- s2 %>% 
-            jump_to(url)
+        s <- html_session(url2)
         
-        project_page <- s %>% 
+        s1 <- s %>% 
             follow_link("Login") 
         
-        form2 <- html_form(project_page)[[1]] %>% 
+        form1 <- html_form(s1)[[1]] %>% 
             set_values(origin = org_link)
         
         fake_submit_button <- list(name = "submit-btn",
@@ -152,14 +196,15 @@ ukds_download <- function(file_id,
                                    readonly = NULL,
                                    required = FALSE)
         attr(fake_submit_button, "class") <- "btn-enabled"
-        form2[["fields"]][[7]] <- fake_submit_button
-        p1 <- submit_form(project_page, form2)
+        form1[["fields"]][[7]] <- fake_submit_button
+        s2 <- submit_form(s1, form1)
         
-            jump_to(data_page %>%
-                        html_nodes("a") %>%
-                        html_attr("href") %>%
-                        .[str_detect(., "UKDSRegister")] %>%
-                        first())
+        form2 <- html_form(s2)[[1]] %>% 
+            set_values(j_username = user,
+                       j_password = password)
+        
+        s3 <- submit_form(s2, form2) 
+        
         
         
         remDr$findElement(using = "partial link text", "Download")$clickElement()
