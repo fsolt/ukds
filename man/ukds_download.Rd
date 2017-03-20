@@ -6,13 +6,16 @@
 \usage{
 ukds_download(file_id, org = getOption("ukds_org"),
   user = getOption("ukds_user"), password = getOption("ukds_password"),
-  reset = FALSE, download_dir = "ukds_data", msg = TRUE, convert = TRUE)
+  use = getOption("ukds_use"), reset = FALSE, download_dir = "ukds_data",
+  msg = TRUE, convert = TRUE, delay = 5)
 }
 \arguments{
-\item{file_id}{The unique identifier (or optionally a vector of these identifiers)
+\item{file_id}{The unique identifier (or optionally a vector of these identifiers).
 for the dataset(s) to be downloaded (see details).}
 
-\item{org, email, password}{Your UK Data Service organization, username, and password (see details)}
+\item{org, email, password}{Your UK Data Service organization, username, and password (see details).}
+
+\item{use}{The number of a 'use of data' you have registered with the UK Data Service (see details).}
 
 \item{reset}{If TRUE, you will be asked to re-enter your organization, username, and password.}
 
@@ -22,6 +25,10 @@ which files from the UK Data Service will be downloaded.}
 \item{msg}{If TRUE, outputs a message showing which data set is being downloaded.}
 
 \item{convert}{If TRUE, converts downloaded file(s) to .RData format.}
+
+\item{delay}{If the speed of your connection to the UK Data Service is particularly slow, 
+\code{ukds_download} may encounter problems.  Increasing the \code{delay} parameter
+may help.}
 }
 \value{
 The function returns downloaded files.
@@ -31,8 +38,8 @@ The function returns downloaded files.
   from the UK Data Service's data archive
 }
 \details{
-To avoid requiring others to edit your scripts to insert their own email and  
- password or to force them to do so interactively, the default is set to fetch 
+To avoid requiring others to edit your scripts to insert their own organization, email,  
+ password, and use or to force them to do so interactively, the default is set to fetch 
  this information from the user's .Rprofile.  Before running \code{ukds_download}, 
  then, you should be sure to add these options to your .Rprofile substituting your 
  info for the example below:
@@ -40,7 +47,8 @@ To avoid requiring others to edit your scripts to insert their own email and
    \code{
        options("ukds_org" = "UK Data Service",
                "ukds_user" = "ukf0000000000",
-               "ukds_password" = "password123!")
+               "ukds_password" = "password123!",
+               "ukds_use" = "111111")
    }
 }
 \examples{

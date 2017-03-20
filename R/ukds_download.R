@@ -38,7 +38,7 @@
 #' }
 #' 
 #' @import RSelenium
-#' @importFrom stringr str_detect str_replace
+#' @importFrom stringr str_detect str_subset
 #' @importFrom magrittr '%>%'
 #' @importFrom rio convert
 #' @importFrom tools file_path_sans_ext
