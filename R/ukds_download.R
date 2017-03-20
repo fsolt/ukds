@@ -5,7 +5,7 @@
 #'
 #' @param file_id The unique identifier (or optionally a vector of these identifiers).
 #'  for the dataset(s) to be downloaded (see details).
-#' @param org,email,password Your UK Data Service organization, username, and password (see details).
+#' @param org,user,password Your UK Data Service organization, username, and password (see details).
 #' @param use The number of a 'use of data' you have registered with the UK Data Service (see details).
 #' @param reset If TRUE, you will be asked to re-enter your organization, username, and password.
 #' @param download_dir The directory (relative to your working directory) to
@@ -42,6 +42,7 @@
 #' @importFrom magrittr '%>%'
 #' @importFrom rio convert
 #' @importFrom tools file_path_sans_ext
+#' @importFrom utils unzip
 #' 
 #' @export
 ukds_download <- function(file_id, 

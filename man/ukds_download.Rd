@@ -13,7 +13,7 @@ ukds_download(file_id, org = getOption("ukds_org"),
 \item{file_id}{The unique identifier (or optionally a vector of these identifiers).
 for the dataset(s) to be downloaded (see details).}
 
-\item{org, email, password}{Your UK Data Service organization, username, and password (see details).}
+\item{org, user, password}{Your UK Data Service organization, username, and password (see details).}
 
 \item{use}{The number of a 'use of data' you have registered with the UK Data Service (see details).}
 
@@ -45,7 +45,7 @@ To avoid requiring others to edit your scripts to insert their own organization,
  info for the example below:
 
    \code{
-       options("ukds_org" = "UK Data Service",
+       options("ukds_org" = "UK Data Archive",
                "ukds_user" = "ukf0000000000",
                "ukds_password" = "password123!",
                "ukds_use" = "111111")
