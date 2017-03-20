@@ -18,5 +18,6 @@ Imports:
   rio,
   RSelenium (>= 1.7.1),
   stringr,
-  tools
+  tools,
+  utils
 RoxygenNote: 6.0.1
