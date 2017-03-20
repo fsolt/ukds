@@ -17,4 +17,6 @@ if (!require(ghit)) install.packages("ghit")
 ghit::install_github("fsolt/ukds")
 ```
 
+For more details, check out [the vignette](https://cran.r-project.org/package=ukds/vignettes/ukds-vignette.html).
+
 * Note that, on Windows systems, `ukds` requires that [RTools](https://cran.r-project.org/bin/windows/Rtools/index.html) is installed.
