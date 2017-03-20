@@ -24,7 +24,7 @@
 #'  info for the example below:
 #'
 #'    \code{
-#'        options("ukds_org" = "UK Data Service",
+#'        options("ukds_org" = "UK Data Archive",
 #'                "ukds_user" = "ukf0000000000",
 #'                "ukds_password" = "password123!",
 #'                "ukds_use" = "111111")
