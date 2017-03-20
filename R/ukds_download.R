@@ -104,10 +104,10 @@ ukds_download <- function(file_id,
     remDr$navigate(signin)
     Sys.sleep(delay)
     remDr$findElement(using = "partial link text", "Let me choose")$clickElement()
-    Sys.sleep(delay)
+    Sys.sleep(delay/2)
     remDr$findElement(using = "class", "as-selections")$sendKeysToElement(list(org))
     remDr$findElement(using = "class", "btn-enabled")$clickElement()
-    Sys.sleep(delay)
+    Sys.sleep(delay/2)
     remDr$findElement(using = "id", "j_username")$sendKeysToElement(list(user))
     remDr$findElement(using = "id", "j_password")$sendKeysToElement(list(password))
     remDr$findElement(using = "class", "input-submit")$clickElement()
@@ -134,6 +134,8 @@ ukds_download <- function(file_id,
         remDr$findElement(using = "xpath", paste0("//input[@value=", use,"]"))$clickElement() # choose project
         Sys.sleep(delay)
         remDr$findElement(using = "xpath", "//input[@value='Add Datasets']")$clickElement() # add datasets
+        Sys.sleep(delay/2)
+        try(remDr$findElement(using = "xpath", "//input[@value='Add Datasets']")$clickElement()) # add datasets
         Sys.sleep(delay)
         
         # accept special terms, if any
@@ -144,7 +146,7 @@ ukds_download <- function(file_id,
             Sys.sleep(delay)
         }
 
-        remDr$findElement(using = "xpath", "//input[contains(@onclick, item)]")$clickElement() # "Download"
+        remDr$findElement(using = "xpath", paste0('//input[contains(@onclick,', item,')]'))$clickElement() # "Download"
         remDr$findElement(using = "xpath", "//input[@value='I accept']")$clickElement() # End User License
         
         remDr$findElement(using = "xpath", "//input[@value='STATA']")$clickElement() # Stata
@@ -172,7 +174,7 @@ ukds_download <- function(file_id,
         data_file <- list.files(path = file.path(download_dir, item), recursive = TRUE) %>%
             str_subset("\\.dta")
         if (convert == TRUE) {
-                rio::convert(file.path(download_dir, item, dfile),
+                rio::convert(file.path(download_dir, item, data_file),
                              paste0(tools::file_path_sans_ext(file.path(download_dir,
                                                                         item,
                                                                         basename(data_file))), ".RData"))
