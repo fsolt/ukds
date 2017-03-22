@@ -172,13 +172,16 @@ ukds_download <- function(file_id,
         dld_new <- list.files(download_dir)[!list.files(download_dir) %in% dld_old]
         file.rename(file.path(download_dir, dld_new), file.path(download_dir, item))
         
-        data_file <- list.files(path = file.path(download_dir, item), recursive = TRUE) %>%
+        data_files <- list.files(path = file.path(download_dir, item), recursive = TRUE) %>%
             str_subset("\\.dta")
         if (convert == TRUE) {
+            for (i in seq_along(data_files)) {
+                data_file <- data_files[i]
                 rio::convert(file.path(download_dir, item, data_file),
                              paste0(tools::file_path_sans_ext(file.path(download_dir,
                                                                         item,
                                                                         basename(data_file))), ".RData"))
+            }
         }
     }
     
