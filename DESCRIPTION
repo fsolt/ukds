@@ -2,20 +2,20 @@ Package: ukds
 Type: Package
 Title: Reproducible Data Retrieval from the UK Data Service
 Version: 0.1.0
-Date: 2017-03-20
+Date: 2017-03-22
 Authors@R: c(
     person("Frederick", "Solt", email = "frederick-solt@uiowa.edu", role = c("aut", "cre")))
+URL: https://github.com/fsolt/ukds
+BugReports: https://github.com/fsolt/ukds/issues
 Description: Reproducible, programmatic retrieval of datasets from the 
     UK Data Service <https://www.ukdataservice.ac.uk>. The UKDS is "the
-    UK’s largest collection of social, economic and population data resources,"
+    UK's largest collection of social, economic and population data resources,"
     but researchers taking advantage of these datasets are caught in a bind.  
     The UKDS terms and conditions sharply limit redistribution of downloaded
     datasets, but to ensure that one's work can be reproduced, assessed, and
     built upon by others, one must provide access to the raw data one employed.
     The ukds package cuts this knot by providing programmatic, reproducible
     access to the UKDS datasets from within R. 
-URL: https://github.com/fsolt/ukds
-BugReports: https://github.com/fsolt/ukds/issues
 License: MIT + file LICENSE
 LazyData: TRUE
 Suggests:
