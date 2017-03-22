@@ -7,6 +7,8 @@ Authors@R: c(
     person("Frederick", "Solt", email = "frederick-solt@uiowa.edu", role = c("aut", "cre")))
 Description: Reproducible, programmatic retrieval of datasets from the
     UK Data Service.
+URL: https://github.com/fsolt/ukds
+BugReports: https://github.com/fsolt/ukds/issues
 License: MIT + file LICENSE
 LazyData: TRUE
 Suggests:
