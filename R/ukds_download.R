@@ -126,31 +126,35 @@ ukds_download <- function(file_id,
         url <- paste0("https://discover.ukdataservice.ac.uk/catalogue/?sn=", item, "&type=Data%20catalogue")
         
         remDr$navigate(url)
-        remDr$findElement(using = "partial link text", "Download")$clickElement()
-        Sys.sleep(delay/2)
-        remDr$findElement(using = "partial link text", "Login")$clickElement()
-        Sys.sleep(delay/2)
-        
-        # select use
-        remDr$findElement(using = "xpath", paste0("//input[@value=", use,"]"))$clickElement() # choose project
-        Sys.sleep(delay)
-        remDr$findElement(using = "xpath", "//input[@value='Add Datasets']")$clickElement() # add datasets
-        Sys.sleep(delay/2)
-        try(remDr$findElement(using = "xpath", "//input[@value='Add Datasets']")$clickElement()) # add datasets
-        Sys.sleep(delay)
-        
-        # accept special terms, if any
-        if (length(remDr$findElements(using = "partial link text", "Accept"))!=0) {
-            remDr$findElement(using = "partial link text", "Accept")$clickElement()
+        if (try(unlist(remDr$findElement(using = "partial link text", "Stata")$getElementAttribute('id')), silent = TRUE) == "") {
+            remDr$findElement(using = "partial link text", "Stata")$clickElement()
+        } else {
+            remDr$findElement(using = "partial link text", "Download")$clickElement()
+            Sys.sleep(delay/2)
+            remDr$findElement(using = "partial link text", "Login")$clickElement()
+            Sys.sleep(delay/2)
+            
+            # select use
+            remDr$findElement(using = "xpath", paste0("//input[@value=", use,"]"))$clickElement() # choose project
             Sys.sleep(delay)
-            remDr$findElement(using = "xpath", "//input[@value='I accept']")$clickElement()
+            remDr$findElement(using = "xpath", "//input[@value='Add Datasets']")$clickElement() # add datasets
+            Sys.sleep(delay/2)
+            try(remDr$findElement(using = "xpath", "//input[@value='Add Datasets']")$clickElement()) # add datasets
             Sys.sleep(delay)
+            
+            # accept special terms, if any
+            if (length(remDr$findElements(using = "partial link text", "Accept"))!=0) {
+                remDr$findElement(using = "partial link text", "Accept")$clickElement()
+                Sys.sleep(delay)
+                remDr$findElement(using = "xpath", "//input[@value='I accept']")$clickElement()
+                Sys.sleep(delay)
+            }
+            
+            remDr$findElement(using = "xpath", paste0('//input[contains(@onclick,', item,')]'))$clickElement() # "Download"
+            remDr$findElement(using = "xpath", "//input[@value='I accept']")$clickElement() # End User License
+            
+            remDr$findElement(using = "xpath", "//input[@value='STATA']")$clickElement() # Stata
         }
-
-        remDr$findElement(using = "xpath", paste0('//input[contains(@onclick,', item,')]'))$clickElement() # "Download"
-        remDr$findElement(using = "xpath", "//input[@value='I accept']")$clickElement() # End User License
-        
-        remDr$findElement(using = "xpath", "//input[@value='STATA']")$clickElement() # Stata
         
         # check that download has completed
         dd_new <- list.files(default_dir)[!list.files(default_dir) %in% dd_old]
