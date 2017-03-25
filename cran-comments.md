@@ -10,10 +10,6 @@ Maintainer: ‘Frederick Solt <frederick-solt@uiowa.edu>’
 
 New submission
 
-Found the following (possibly) invalid URLs:
-URL: https://cran.r-project.org/package=ukds/vignettes/ukds-vignette.html
-From: README.md
-Status: 404
-Message: Not Found
+Description now includes link (and actual description)
 
-This flagged link to the vignette will be fixed upon publication
+This link to the vignette at <https://cran.r-project.org/package=ukds/vignettes/ukds-vignette.html> flagged as (possibly) invalid will be fixed upon publication
